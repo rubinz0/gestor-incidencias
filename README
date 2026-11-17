@@ -1,0 +1,28 @@
+## Preguntas
+
+1. **¿Por qué el frontend no necesita conectarse a PostgreSQL?**
+   Porque el frontend solo muestra la interfaz y le pide los datos al backend a través de la API. Es el backend quien habla con la base de datos.
+
+2. **¿Por qué el backend pertenece a dos redes?**
+   Porque tiene que hablar con dos servicios: con el frontend y con PostgreSQL.
+
+3. **¿Qué servicio necesita publicar un puerto en el anfitrión?**
+   El frontend, porque es el que usa el navegador desde mi ordenador (localhost:8080). El backend y la base de datos solo se usan por dentro.
+
+4. **¿Por qué publicar PostgreSQL hacia fuera no es la solución adecuada para un fallo de comunicación interno?**
+   Porque un fallo entre contenedores se arregla revisando las redes y los nombres de servicio, no abriendo la base de datos al exterior. Publicar el puerto no soluciona el problema y encima expone la base de datos a otros equipos o programas, lo que es un riesgo de seguridad.
+
+5. **¿Qué ventaja ofrece Docker Compose respecto a ejecutar los tres contenedores manualmente?**
+   Todo queda descrito en un solo archivo y se levanta con un comando. Es más fácil de repetir, de compartir y de mantener que escribir docker run, crear redes y volúmenes a mano y acordarse de cómo se configuró cada cosa.
+
+6. **¿Por qué hemos dividido la arquitectura en dos redes?**
+   Para aislar los servicios, el frontend solo ve al backend y la base de datos solo es accesible desde el backend. Si falla el frontend, no tiene acceso directo a los datos.
+
+7. **¿Por qué el backend utiliza `db` como dirección de PostgreSQL?**
+   Porque Compose crea un DNS interno en el que cada servicio se encuentra por su nombre. db es el nombre del servicio. No sirve localhost porque dentro del contenedor del backend significa el propio backend, y las IP de los contenedores pueden cambiar al recrearlos.
+
+8. **¿Qué diferencia existe entre detener un proyecto y eliminar sus volúmenes?**
+   Detener docker compose stop para los contenedores, pero los datos se conservan en el volumen. Eliminar los volúmenes docker compose down -v borra también los datos de la base de datos y no se pueden recuperar.
+
+9. **¿Qué consecuencias tendría para la empresa perder el volumen de PostgreSQL?**
+   Se perderían todas las incidencias registradas, es decir, el historial y la información de la empresa. Habría que recuperarla de una copia de seguridad, y si no existe, se perdería definitivamente. Por eso conviene hacer copias de seguridad del volumen.
